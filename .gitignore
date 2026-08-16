@@ -2,6 +2,7 @@ node_modules/
 dist/
 *.log
 data/oj.db
+**/.judge-work/
 data/oj.db-journal
 data/oj.db-wal
 data/oj.db-shm

@@ -4,7 +4,8 @@
  * cases 目录内按 NN.in / NN.out 配对，NN 排序后依次作为测试组。
  * 结果以 JSON 打印到 stdout。
  */
-import { readdirSync } from "node:fs";
+import { mkdtempSync, readdirSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { judge } from "./judge";
 import type { JudgeRequest } from "./types";
@@ -38,7 +39,7 @@ async function main(): Promise<void> {
   const req: JudgeRequest = {
     languageId: lang,
     sourcePath: source,
-    workDir: join(casesDir, ".judge-work"),
+    workDir: mkdtempSync(join(tmpdir(), "dp-oj-judge-")),
     testcases: files.map((f, i) => ({
       groupNo: i + 1,
       inputPath: join(casesDir, f),
