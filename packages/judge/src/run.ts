@@ -2,6 +2,7 @@ import { DEFAULT_LIMITS } from "@dp-oj/common";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { compileSource } from "./compile";
+import { DockerRunner } from "./docker-runner";
 import { artifactPathIn, getLanguage, resolveRunCmd } from "./language";
 import { LocalProcessRunner } from "./runner";
 import type { JudgeLimits, RunResult, Runner } from "./types";
@@ -47,7 +48,8 @@ export async function runCode(req: RunCodeRequest): Promise<RunCodeResult> {
     return { languageLabel: lang.label, compiled: false, compileOutput: comp.output, run: null };
   }
 
-  const runCmd = resolveRunCmd(lang.runCmd, artifactPathIn(lang, req.workDir), req.workDir);
+  const isDocker = req.runner instanceof DockerRunner;
+  const runCmd = isDocker ? [...lang.runCmd] : resolveRunCmd(lang.runCmd, artifactPathIn(lang, req.workDir), req.workDir);
   const run = await runner.run({
     command: runCmd[0],
     args: runCmd.slice(1),

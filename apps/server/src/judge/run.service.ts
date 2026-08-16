@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { LANGUAGES } from "@dp-oj/common";
-import { runCode } from "@dp-oj/judge";
+import { createRunner, runCode } from "@dp-oj/judge";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -31,6 +31,7 @@ export class RunService {
       workDir: dir,
       stdin,
       limits: { timeMs: 2000, memoryMb: 256 },
+      runner: createRunner(),
     });
 
     return {

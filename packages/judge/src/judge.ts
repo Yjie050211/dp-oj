@@ -4,6 +4,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { compileSource } from "./compile";
 import { compareOutput } from "./compare";
+import { DockerRunner } from "./docker-runner";
 import { artifactPathIn, getLanguage, resolveRunCmd } from "./language";
 import { LocalProcessRunner } from "./runner";
 import type { CaseResult, JudgeLimits, JudgeRequest, SubmissionResult } from "./types";
@@ -53,8 +54,10 @@ export async function judge(req: JudgeRequest): Promise<SubmissionResult> {
     };
   }
 
-  const artifactPath = artifactPathIn(lang, req.workDir);
-  const runCmd = resolveRunCmd(lang.runCmd, artifactPath, req.workDir);
+  // Docker 容器模式下运行命令保持容器内相对路径（镜像内 toolchain 编译 Linux 产物）
+  const isDocker = req.runner instanceof DockerRunner;
+  const artifactPath = isDocker ? null : artifactPathIn(lang, req.workDir);
+  const runCmd = isDocker ? [...lang.runCmd] : resolveRunCmd(lang.runCmd, artifactPath, req.workDir);
   const timeLimitMs = limits.timeMs * lang.timeFactor;
 
   // 2. 逐组运行

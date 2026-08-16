@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger, OnModuleDestroy } from "@nestjs/common";
 import { LANGUAGES, SubmissionStatus, Verdict } from "@dp-oj/common";
-import { judge } from "@dp-oj/judge";
+import { createRunner, judge } from "@dp-oj/judge";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -73,6 +73,7 @@ export class JudgeQueueService implements OnModuleDestroy {
           timeMs: problem.time_limit_ms,
           memoryMb: problem.memory_limit_mb,
         },
+        runner: createRunner(),
       });
     } catch (err) {
       result = {

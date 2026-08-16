@@ -1,6 +1,7 @@
 export { judge } from "./judge";
 export { runCode, type RunCodeRequest, type RunCodeResult } from "./run";
 export { LocalProcessRunner } from "./runner";
+export { DockerRunner, createRunner } from "./docker-runner";
 export { compareOutput, normalizeOutput } from "./compare";
 export { getLanguage, resolveRunCmd } from "./language";
 export type {
