@@ -1,40 +1,96 @@
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
   font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  --bg: #0f1420;
+  --panel: #161c2b;
+  --panel2: #121827;
+  --border: #232c40;
+  --text: #e6e9f0;
+  --muted: #8b93a7;
+  --accent: #7c9cff;
 }
 
 * { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); }
+a { color: var(--accent); text-decoration: none; }
 
-body { margin: 0; background: #0f1420; color: #e6e9f0; }
+/* ---------- 导航 ---------- */
+.nav { position: sticky; top: 0; background: rgba(15,20,32,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); z-index: 10; }
+.nav-inner { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; gap: 28px; padding: 12px 20px; }
+.brand { font-size: 17px; font-weight: 700; letter-spacing: 1px; color: var(--text); }
+.nav-links { display: flex; gap: 18px; }
+.nav-links a { color: var(--muted); font-size: 14px; }
+.nav-links a:hover { color: var(--text); }
 
-.page { max-width: 860px; margin: 0 auto; padding: 32px 20px 48px; }
+.content { max-width: 1000px; margin: 0 auto; padding: 26px 20px 60px; }
 
-.header h1 { margin: 0; font-size: 28px; letter-spacing: 1px; }
-.subtitle { margin: 6px 0 0; color: #8b93a7; font-size: 14px; }
-
+/* ---------- 通用 ---------- */
+.page-head h1 { margin: 0; font-size: 24px; }
+.subtitle { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
 .banner { margin-top: 20px; padding: 14px 16px; border-radius: 10px; background: #1a2130; color: #9aa4bd; }
 .banner.error { background: #3a1d24; color: #ff9d9d; }
+.back-link { display: inline-block; margin-bottom: 14px; font-size: 13px; color: var(--muted); }
+.back-link:hover { color: var(--accent); }
+.hint-note { color: var(--muted); font-size: 13px; margin-top: 16px; }
 
-.card { margin-top: 24px; background: #161c2b; border: 1px solid #232c40; border-radius: 14px; padding: 20px; }
+/* ---------- 题目列表 ---------- */
+.prob-list { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+.prob-card { display: flex; align-items: center; gap: 16px; padding: 14px 18px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel); transition: border-color .15s, transform .15s; color: var(--text); }
+.prob-card:hover { border-color: #3b4a6e; transform: translateY(-1px); }
+.prob-id { font-weight: 800; color: var(--accent); min-width: 34px; font-size: 15px; }
+.prob-id.big { font-size: 22px; }
+.prob-main { flex: 1; min-width: 0; }
+.prob-title { font-size: 15px; font-weight: 600; }
+.prob-meta { display: flex; align-items: center; gap: 8px; margin-top: 5px; flex-wrap: wrap; }
+.lecture { font-size: 12px; color: var(--muted); }
+.tag { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #1f293f; color: #9db4ff; }
+.tag.limit { color: #d9b06a; }
+
+.difficulty { font-size: 12px; padding: 3px 10px; border-radius: 999px; font-weight: 600; flex: none; }
+.difficulty.easy { background: #123526; color: #4ade80; }
+.difficulty.medium { background: #3a2e12; color: #fbbf24; }
+.difficulty.hard { background: #3a1d24; color: #f87171; }
+
+/* ---------- 题目详情 ---------- */
+.prob-title-row { display: flex; align-items: center; gap: 14px; }
+.prob-title-row h1 { font-size: 24px; margin: 0; }
+.card { margin-top: 16px; background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; }
+.card h2 { margin: 0 0 12px; font-size: 16px; }
+
+/* ---------- Markdown 题面 ---------- */
+.markdown { line-height: 1.75; font-size: 15px; }
+.markdown h2 { font-size: 18px; margin: 20px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.markdown h3 { font-size: 16px; margin: 14px 0 6px; }
+.markdown p { margin: 8px 0; }
+.markdown ul, .markdown ol { margin: 8px 0; padding-left: 22px; }
+.markdown li { margin: 3px 0; }
+.markdown code { background: #1c2436; border-radius: 5px; padding: 1px 6px; font-size: 13px; font-family: Consolas, "Courier New", monospace; }
+.markdown pre { background: #0d1220; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; overflow-x: auto; }
+.markdown pre code { background: none; padding: 0; }
+.markdown table { border-collapse: collapse; margin: 10px 0; }
+.markdown th, .markdown td { border: 1px solid var(--border); padding: 6px 12px; font-size: 14px; }
+.markdown .katex-display { overflow-x: auto; overflow-y: hidden; padding: 6px 0; }
+
+/* ---------- 样例 ---------- */
+.sample { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+.sample-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.sample pre { margin: 0; background: #0d1220; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-family: Consolas, "Courier New", monospace; font-size: 13px; overflow-x: auto; white-space: pre-wrap; }
+.sample-note { grid-column: 1 / -1; font-size: 13px; color: var(--muted); background: #1a2130; border-radius: 8px; padding: 10px 12px; }
+
+/* ---------- 系统状态 ---------- */
 .card-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .card-head h2 { margin: 0; font-size: 17px; }
 .time { color: #6d7590; font-size: 12px; margin-left: auto; }
-
 .pill { padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
 .pill.ok { background: #123526; color: #4ade80; }
 .pill.warn { background: #3a2e12; color: #fbbf24; }
-
 .grid { margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
-
-.engine { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; border: 1px solid #232c40; background: #121827; }
+.engine { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel2); }
 .engine-badge { width: 40px; height: 40px; border-radius: 9px; display: grid; place-items: center; font-weight: 700; background: #1f293f; color: #9db4ff; }
 .engine-info { flex: 1; min-width: 0; }
 .engine-label { font-size: 14px; font-weight: 600; }
 .engine-version { font-size: 12px; color: #7d869e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .engine.off .engine-version { color: #c98f8f; }
-
 .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
 .dot.on { background: #22c55e; box-shadow: 0 0 8px #22c55e88; }
 .dot.off { background: #ef4444; box-shadow: 0 0 8px #ef444488; }
-
-.footer { margin-top: 28px; text-align: center; color: #4c5470; font-size: 12px; }

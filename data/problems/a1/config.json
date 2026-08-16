@@ -1,0 +1,23 @@
+{
+  "slug": "a1",
+  "displayId": "A1",
+  "title": "采药",
+  "lectureNo": 1,
+  "lectureTitle": "01 背包问题",
+  "difficulty": "入门",
+  "tags": [
+    "01背包",
+    "动态规划",
+    "一维优化"
+  ],
+  "timeLimitMs": 1000,
+  "memoryLimitMb": 256,
+  "statementFile": "statement.md",
+  "samples": [
+    {
+      "input": "70 3\n71 100\n69 1\n1 2\n",
+      "output": "3\n",
+      "note": "只能选时间 69 和 1 的两株（69+1=70），价值 1+2=3；71 分钟的那株超时不可选。"
+    }
+  ]
+}

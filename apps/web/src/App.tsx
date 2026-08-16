@@ -1,103 +1,29 @@
-import { useEffect, useState } from "react";
-
-interface EngineStatus {
-  id: string;
-  label: string;
-  available: boolean;
-  version: string | null;
-  error: string | null;
-}
-
-interface SystemHealth {
-  status: "ok" | "degraded";
-  checkedAt: string;
-  engines: EngineStatus[];
-  docker: { available: boolean; version: string | null; error: string | null };
-}
-
-const LANG_ICONS: Record<string, string> = {
-  cpp: "C++",
-  python: "Py",
-  go: "Go",
-  java: "Jv",
-};
+import { Link, Route, Routes } from "react-router-dom";
+import ProblemListPage from "./pages/ProblemListPage";
+import ProblemDetailPage from "./pages/ProblemDetailPage";
+import SystemStatusPage from "./pages/SystemStatusPage";
 
 export default function App() {
-  const [health, setHealth] = useState<SystemHealth | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let alive = true;
-    const load = async () => {
-      try {
-        const res = await fetch("/api/system/health");
-        const data = (await res.json()) as SystemHealth;
-        if (alive) {
-          setHealth(data);
-          setError(null);
-        }
-      } catch (e) {
-        if (alive) setError(String(e));
-      }
-    };
-    load();
-    const timer = setInterval(load, 10_000);
-    return () => {
-      alive = false;
-      clearInterval(timer);
-    };
-  }, []);
-
   return (
-    <div className="page">
-      <header className="header">
-        <h1>DP 背包 OJ</h1>
-        <p className="subtitle">基于《背包问题九讲》的在线评测与练习平台</p>
-      </header>
-
-      {error && <div className="banner error">无法连接后端（http://localhost:3000）：{error}</div>}
-
-      {health && (
-        <section className="card">
-          <div className="card-head">
-            <h2>判题机环境自检</h2>
-            <span className={health.status === "ok" ? "pill ok" : "pill warn"}>
-              {health.status === "ok" ? "全部就绪" : "部分缺失"}
-            </span>
-            <span className="time">检测时间 {new Date(health.checkedAt).toLocaleString()}</span>
+    <div className="shell">
+      <nav className="nav">
+        <div className="nav-inner">
+          <Link to="/" className="brand">
+            DP 背包 OJ
+          </Link>
+          <div className="nav-links">
+            <Link to="/">题目</Link>
+            <Link to="/system">系统状态</Link>
           </div>
-
-          <div className="grid">
-            {health.engines.map((e) => (
-              <div key={e.id} className={e.available ? "engine on" : "engine off"}>
-                <div className="engine-badge">{LANG_ICONS[e.id] ?? e.id}</div>
-                <div className="engine-info">
-                  <div className="engine-label">{e.label}</div>
-                  <div className="engine-version" title={e.version ?? e.error ?? ""}>
-                    {e.available ? e.version : "未检测到工具链"}
-                  </div>
-                </div>
-                <span className={e.available ? "dot on" : "dot off"} />
-              </div>
-            ))}
-
-            <div className={health.docker.available ? "engine on" : "engine off"}>
-              <div className="engine-badge">Dk</div>
-              <div className="engine-info">
-                <div className="engine-label">Docker（可选沙箱）</div>
-                <div className="engine-version" title={health.docker.version ?? health.docker.error ?? ""}>
-                  {health.docker.available ? health.docker.version : "未检测到"}
-                </div>
-              </div>
-              <span className={health.docker.available ? "dot on" : "dot off"} />
-            </div>
-          </div>
-        </section>
-      )}
-
-      {!health && !error && <div className="banner">正在自检判题环境…</div>}
-
-      <footer className="footer">M0 里程碑 · 环境与脚手架</footer>
+        </div>
+      </nav>
+      <main className="content">
+        <Routes>
+          <Route path="/" element={<ProblemListPage />} />
+          <Route path="/problems/:slug" element={<ProblemDetailPage />} />
+          <Route path="/system" element={<SystemStatusPage />} />
+        </Routes>
+      </main>
     </div>
   );
 }

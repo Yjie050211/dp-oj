@@ -21,7 +21,7 @@ pnpm dev        # server: http://localhost:3000/api/system/health ｜ web: http:
 ## 里程碑进度
 
 - [x] M0 环境与脚手架：monorepo 骨架、Go 1.26.5 安装、/api/system/health 环境自检（✅ 2026-08-16 验收通过：cpp/python/go/java/docker 全部可用，前端+代理打通）
-- [ ] M1 题库管理
+- [x] M1 题库管理：A1 采药 / A2 疯狂的采药上线（题面含 KaTeX 公式、每题 12 组测试数据、seed 导入、列表/详情 API、前端列表与详情页）（✅ 2026-08-16 验收通过）
 - [ ] M2 判题引擎核心
 - [ ] M3 多语言 + 结果反馈
 - [ ] M4 编辑器 + 即时测试

@@ -1,0 +1,23 @@
+{
+  "slug": "a2",
+  "displayId": "A2",
+  "title": "疯狂的采药",
+  "lectureNo": 2,
+  "lectureTitle": "完全背包问题",
+  "difficulty": "入门",
+  "tags": [
+    "完全背包",
+    "动态规划",
+    "顺序枚举"
+  ],
+  "timeLimitMs": 1000,
+  "memoryLimitMb": 256,
+  "statementFile": "statement.md",
+  "samples": [
+    {
+      "input": "24 3\n4 5\n7 9\n10 15\n",
+      "output": "35\n",
+      "note": "最优方案：第 3 种草药采 2 株（10+10）再加第 1 种 1 株（4），共 24 分钟，价值 15+15+5=35。"
+    }
+  ]
+}
