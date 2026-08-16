@@ -80,7 +80,7 @@ export default function ProblemDetailPage() {
             ))}
           </section>
 
-          <SubmitPanel problemSlug={problem.slug} />
+          <SubmitPanel problemSlug={problem.slug} samples={problem.samples} />
         </>
       )}
 

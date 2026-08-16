@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import CodeEditor from "./CodeEditor";
 import { VERDICT_CLASS, type SubmissionDetail } from "../types";
 
 interface LangInfo {
@@ -6,6 +7,24 @@ interface LangInfo {
   label: string;
   available: boolean;
   version: string | null;
+}
+
+interface Sample {
+  input: string;
+  output: string;
+  note?: string;
+}
+
+interface RunResultData {
+  compiled: boolean;
+  compileOutput: string | null;
+  exitCode: number | null;
+  stdout: string;
+  stderr: string;
+  timeMs: number;
+  timedOut: boolean;
+  outputTruncated: boolean;
+  error: string | null;
 }
 
 /** 每种语言的初始代码模板 */
@@ -54,13 +73,19 @@ function storageKey(slug: string, lang: string): string {
   return "dp-oj-code-" + slug + "-" + lang;
 }
 
-export default function SubmitPanel({ problemSlug }: { problemSlug: string }) {
+export default function SubmitPanel({ problemSlug, samples }: { problemSlug: string; samples: Sample[] }) {
   const [languages, setLanguages] = useState<LangInfo[]>([]);
   const [langId, setLangId] = useState("cpp");
   const [code, setCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submission, setSubmission] = useState<SubmissionDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const [running, setRunning] = useState(false);
+  const [runResult, setRunResult] = useState<RunResultData | null>(null);
+  const [customOpen, setCustomOpen] = useState(false);
+  const [customStdin, setCustomStdin] = useState("");
+
   const timerRef = useRef<number | null>(null);
 
   // 语言列表
@@ -98,6 +123,42 @@ export default function SubmitPanel({ problemSlug }: { problemSlug: string }) {
   const onCodeChange = (v: string) => {
     setCode(v);
     localStorage.setItem(storageKey(problemSlug, langId), v);
+  };
+
+  /** 即时测试：POST /api/judge/run */
+  const doRun = async (stdin: string) => {
+    setError(null);
+    setRunning(true);
+    setRunResult(null);
+    setCustomOpen(true);
+    try {
+      const res = await fetch("/api/judge/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ languageId: langId, code, stdin }),
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        let message = "HTTP " + res.status;
+        try {
+          const parsed = JSON.parse(text);
+          if (parsed.message) message = parsed.message;
+        } catch {
+          // 保持默认消息
+        }
+        throw new Error(message);
+      }
+      setRunResult((await res.json()) as RunResultData);
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setRunning(false);
+    }
+  };
+
+  const runSample = () => {
+    const input = samples[0]?.input ?? "";
+    void doRun(input);
   };
 
   const submit = async () => {
@@ -159,7 +220,7 @@ export default function SubmitPanel({ problemSlug }: { problemSlug: string }) {
           className="lang-select"
           value={langId}
           onChange={(e) => onLangChange(e.target.value)}
-          disabled={submitting}
+          disabled={submitting || running}
         >
           {languages.map((l) => (
             <option key={l.id} value={l.id} disabled={!l.available}>
@@ -168,20 +229,76 @@ export default function SubmitPanel({ problemSlug }: { problemSlug: string }) {
             </option>
           ))}
         </select>
-        <button className="btn primary" onClick={submit} disabled={submitting || code.trim().length === 0}>
+        {samples.length > 0 && (
+          <button className="btn ghost" onClick={runSample} disabled={running || submitting || code.trim().length === 0}>
+            {running ? "运行中…" : "运行样例"}
+          </button>
+        )}
+        <button className="btn ghost" onClick={() => setCustomOpen((v) => !v)} disabled={submitting}>
+          自定义测试 {customOpen ? "▴" : "▾"}
+        </button>
+        <button className="btn primary" onClick={submit} disabled={submitting || running || code.trim().length === 0}>
           {submitting ? "判题中…" : "提交"}
         </button>
       </div>
 
-      <textarea
-        className="code-editor"
-        value={code}
-        onChange={(e) => onCodeChange(e.target.value)}
-        spellCheck={false}
-        placeholder="在这里编写代码…"
-      />
+      <CodeEditor language={langId} value={code} onChange={onCodeChange} />
 
       {error && <div className="banner error">{error}</div>}
+
+      {customOpen && (
+        <div className="custom-panel">
+          <div className="custom-head">
+            <div className="result-label">自定义输入（stdin）</div>
+            <button className="btn ghost" onClick={() => void doRun(customStdin)} disabled={running || code.trim().length === 0}>
+              {running ? "运行中…" : "运行"}
+            </button>
+          </div>
+          <textarea
+            className="stdin-editor"
+            value={customStdin}
+            onChange={(e) => setCustomStdin(e.target.value)}
+            spellCheck={false}
+            placeholder="在这里输入测试数据…"
+          />
+
+          {runResult && (
+            <div className="run-result">
+              {!runResult.compiled && runResult.compileOutput && (
+                <div className="compile-output">
+                  <div className="result-label">编译器输出</div>
+                  <pre>{runResult.compileOutput}</pre>
+                </div>
+              )}
+              {runResult.compiled && (
+                <>
+                  <div className="result-head">
+                    <span className={"verdict " + (runResult.timedOut ? "v-tle" : runResult.exitCode === 0 ? "v-ac" : "v-re")}>
+                      {runResult.timedOut ? "超时" : runResult.exitCode === 0 ? "运行完成" : "退出码 " + runResult.exitCode}
+                    </span>
+                    <span className="result-meta">
+                      耗时 {runResult.timeMs} ms
+                      {runResult.outputTruncated && " · 输出已截断"}
+                    </span>
+                  </div>
+                  {runResult.stdout && (
+                    <div className="run-block">
+                      <div className="result-label">stdout</div>
+                      <pre>{runResult.stdout}</pre>
+                    </div>
+                  )}
+                  {(runResult.stderr || runResult.error) && (
+                    <div className="run-block">
+                      <div className="result-label">stderr</div>
+                      <pre>{runResult.stderr || runResult.error}</pre>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {submission && !verdict && <div className="banner">提交 #{submission.id} 排队判题中…</div>}
 

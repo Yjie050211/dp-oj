@@ -129,3 +129,16 @@ a { color: var(--accent); text-decoration: none; }
 .case-table .row-fail td { background: #241722; }
 .wa-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
 .wa-col pre { margin: 0; background: #0d1220; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-family: Consolas, monospace; font-size: 12.5px; white-space: pre-wrap; word-break: break-all; max-height: 220px; overflow-y: auto; }
+
+/* ---------- Monaco 与即时测试 ---------- */
+.btn.ghost { background: #1f293f; color: #b9c5ea; }
+.btn.ghost:hover { background: #27324d; color: #fff; }
+.btn.ghost:disabled { background: #1a2130; color: #6d7590; cursor: not-allowed; }
+.monaco-host { margin-top: 4px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; min-height: 360px; }
+.custom-panel { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 14px; }
+.custom-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.stdin-editor { width: 100%; min-height: 96px; background: #0d1220; color: #dbe4ff; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-family: Consolas, "Courier New", monospace; font-size: 13px; line-height: 1.5; resize: vertical; }
+.stdin-editor:focus { outline: 1px solid #3b4a6e; }
+.run-result { margin-top: 12px; }
+.run-block { background: #0d1220; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
+.run-block pre { margin: 0; font-family: Consolas, monospace; font-size: 12.5px; white-space: pre-wrap; word-break: break-all; max-height: 240px; overflow-y: auto; }
