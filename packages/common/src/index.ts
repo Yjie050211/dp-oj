@@ -61,10 +61,10 @@ export interface LanguageConfig {
 export const LANGUAGES: LanguageConfig[] = [
   {
     id: "cpp",
-    label: "C++17",
+    label: "C++14",
     sourceFile: "main.cpp",
     artifact: "main",
-    compileCmd: ["g++", "-O2", "-std=c++17", "main.cpp", "-o", "main"],
+    compileCmd: ["g++", "-O2", "-std=c++14", "main.cpp", "-o", "main"],
     runCmd: ["./main"],
     timeFactor: 1,
     memoryLimitMB: 256,
@@ -104,7 +104,7 @@ export const LANGUAGES: LanguageConfig[] = [
 /** 沙箱资源限制默认值（每题可覆盖） */
 export const DEFAULT_LIMITS = {
   timeMs: 1000,
-  memoryMB: 256,
+  memoryMb: 256,
   outputBytes: 10 * 1024 * 1024,
   compileTimeoutMs: 10_000,
 } as const;
