@@ -35,6 +35,16 @@ const SCHEMA = [
     score INTEGER NOT NULL DEFAULT 1,
     UNIQUE(problem_id, group_no)
   )`,
+  `CREATE TABLE IF NOT EXISTS submissions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    problem_id INTEGER NOT NULL REFERENCES problems(id),
+    language_id TEXT NOT NULL,
+    code_path TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'PENDING',
+    verdict TEXT,
+    result_json TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  )`,
 ];
 
 @Global()

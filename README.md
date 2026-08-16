@@ -23,7 +23,7 @@ pnpm dev        # server: http://localhost:3000/api/system/health ｜ web: http:
 - [x] M0 环境与脚手架：monorepo 骨架、Go 1.26.5 安装、/api/system/health 环境自检（✅ 2026-08-16 验收通过：cpp/python/go/java/docker 全部可用，前端+代理打通）
 - [x] M1 题库管理：A1 采药 / A2 疯狂的采药上线（题面含 KaTeX 公式、每题 12 组测试数据、seed 导入、列表/详情 API、前端列表与详情页）（✅ 2026-08-16 验收通过）
 - [x] M2 判题引擎核心：packages/judge（编译/沙箱运行/输出比对/首败终态判题）+ CLI + 15 项单元测试全过 + A1 端到端 AC/WA/TLE/CE 验证（判题标准定为 C++14，规避 MinGW g++ 8.1 filesystem 缺陷）（✅ 2026-08-16 验收通过）
-- [ ] M3 多语言 + 结果反馈
+- [x] M3 多语言 + 结果反馈：四语言（C++/Python/Go/Java）HTTP 全链路 AC，SubmissionsModule + 判题队列 + 提交/轮询 API，前端编辑器（textarea）+ 提交 + 结果面板（CE 全文/逐组明细/WA 对比）（✅ 2026-08-16 验收通过）
 - [ ] M4 编辑器 + 即时测试
 - [ ] M5 题库全量（12 基础 + 8 扩展）
 - [ ] M6 打磨收尾

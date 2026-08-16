@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { execFile } from "node:child_process";
-import type { EngineStatus, SystemHealth } from "@dp-oj/common";
+import { LANGUAGES, type EngineStatus, type SystemHealth } from "@dp-oj/common";
 
 interface Probe {
   id: string;
@@ -61,5 +61,27 @@ export class EnvCheckService {
       engines,
       docker,
     };
+  }
+
+  /** 判题语言可用性（供提交页语言选择禁用不可用项） */
+  async languages() {
+    const probes: Record<string, { cmd: string; args: string[] }> = {
+      cpp: { cmd: "g++", args: ["--version"] },
+      python: { cmd: "python", args: ["--version"] },
+      go: { cmd: "go", args: ["version"] },
+      java: { cmd: "javac", args: ["-version"] },
+    };
+    const result = [];
+    for (const lang of LANGUAGES) {
+      const probe = probes[lang.id];
+      const r = probe ? await runProbe(probe.cmd, probe.args) : { ok: true, output: "" };
+      result.push({
+        id: lang.id,
+        label: lang.label,
+        available: r.ok,
+        version: r.ok ? r.output : null,
+      });
+    }
+    return result;
   }
 }

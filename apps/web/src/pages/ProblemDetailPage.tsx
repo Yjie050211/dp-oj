@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Markdown from "../components/Markdown";
+import SubmitPanel from "../components/SubmitPanel";
 import { difficultyClass, type ProblemDetail } from "../types";
 
 export default function ProblemDetailPage() {
@@ -79,9 +80,7 @@ export default function ProblemDetailPage() {
             ))}
           </section>
 
-          <p className="hint-note">
-            在线编写与提交代码将在后续版本开放（M4 里程碑）。当前共 {problem.testcaseCount} 组隐藏测试数据。
-          </p>
+          <SubmitPanel problemSlug={problem.slug} />
         </>
       )}
 

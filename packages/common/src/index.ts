@@ -84,7 +84,7 @@ export const LANGUAGES: LanguageConfig[] = [
     label: "Go",
     sourceFile: "main.go",
     artifact: "main",
-    compileCmd: ["go", "build", "-o", "main", "main.go"],
+    compileCmd: ["go", "build", "-o", "main.exe", "main.go"],
     runCmd: ["./main"],
     timeFactor: 1,
     memoryLimitMB: 256,

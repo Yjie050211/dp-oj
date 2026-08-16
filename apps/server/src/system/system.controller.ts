@@ -10,4 +10,10 @@ export class SystemController {
   health() {
     return this.envCheck.health();
   }
+
+  /** GET /api/system/languages —— 判题语言与工具链可用性（M3） */
+  @Get("languages")
+  languages() {
+    return this.envCheck.languages();
+  }
 }
