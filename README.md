@@ -25,5 +25,5 @@ pnpm dev        # server: http://localhost:3000/api/system/health ｜ web: http:
 - [x] M2 判题引擎核心：packages/judge（编译/沙箱运行/输出比对/首败终态判题）+ CLI + 15 项单元测试全过 + A1 端到端 AC/WA/TLE/CE 验证（判题标准定为 C++14，规避 MinGW g++ 8.1 filesystem 缺陷）（✅ 2026-08-16 验收通过）
 - [x] M3 多语言 + 结果反馈：四语言（C++/Python/Go/Java）HTTP 全链路 AC，SubmissionsModule + 判题队列 + 提交/轮询 API，前端编辑器（textarea）+ 提交 + 结果面板（CE 全文/逐组明细/WA 对比）（✅ 2026-08-16 验收通过）
 - [x] M4 编辑器 + 即时测试：Monaco 编辑器（四语言高亮/主题/草稿）、POST /api/judge/run、运行样例与自定义测试面板（四语言端到端 <2s，CE 即时反馈）（✅ 2026-08-16 验收通过）
-- [ ] M5 题库全量（12 基础 + 8 扩展）
+- [x] M5 题库全量：九讲 12 道基础题（A1-A12）+ 8 道扩展题（B1-B8）全部上线（原创题面含公式、固定种子生成器、C++ 参考解对拍 20/20 AC、列表排序修复）（✅ 2026-08-16 验收通过）
 - [ ] M6 打磨收尾

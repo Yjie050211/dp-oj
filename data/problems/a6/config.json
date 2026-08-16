@@ -1,0 +1,22 @@
+{
+  "slug": "a6",
+  "displayId": "A6",
+  "title": "通天之分组背包",
+  "lectureNo": 6,
+  "lectureTitle": "分组的背包问题",
+  "difficulty": "普及",
+  "tags": [
+    "分组背包",
+    "动态规划"
+  ],
+  "timeLimitMs": 1000,
+  "memoryLimitMb": 256,
+  "statementFile": "statement.md",
+  "samples": [
+    {
+      "input": "10 6 3\n2 5 1\n3 6 1\n4 7 2\n5 8 2\n1 2 3\n6 9 3\n",
+      "output": "16\n",
+      "note": "第 1 组选第 2 件（3 重量 6），第 2 组选第 2 件（5 重量 8），第 3 组选第 1 件（1 重量 2）：总重量 9，价值 16。"
+    }
+  ]
+}

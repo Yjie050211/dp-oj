@@ -1,0 +1,23 @@
+{
+  "slug": "a3",
+  "displayId": "A3",
+  "title": "宝物筛选",
+  "lectureNo": 3,
+  "lectureTitle": "多重背包问题",
+  "difficulty": "普及+",
+  "tags": [
+    "多重背包",
+    "二进制拆分",
+    "动态规划"
+  ],
+  "timeLimitMs": 1000,
+  "memoryLimitMb": 256,
+  "statementFile": "statement.md",
+  "samples": [
+    {
+      "input": "10 3\n2 3 2\n3 4 3\n5 7 1\n",
+      "output": "14\n",
+      "note": "第 1 种取 2 块（4 重量，价值 6），第 2 种取 2 块（6 重量，价值 8），总重量 10，总价值 14。"
+    }
+  ]
+}

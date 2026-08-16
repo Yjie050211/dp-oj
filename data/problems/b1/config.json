@@ -1,0 +1,23 @@
+{
+  "slug": "b1",
+  "displayId": "B1",
+  "title": "矿石巨量",
+  "lectureNo": 3,
+  "lectureTitle": "多重背包问题",
+  "difficulty": "提高",
+  "tags": [
+    "多重背包",
+    "单调队列",
+    "二进制拆分"
+  ],
+  "timeLimitMs": 1500,
+  "memoryLimitMb": 256,
+  "statementFile": "statement.md",
+  "samples": [
+    {
+      "input": "10 3\n2 3 4\n3 4 3\n5 7 2\n",
+      "output": "14\n",
+      "note": "最优价值 14，例如第 3 种取 2 块（10 重量，价值 14），或第 1 种取 2 块 + 第 2 种取 2 块（4+6=10 重量，6+8=14）。"
+    }
+  ]
+}

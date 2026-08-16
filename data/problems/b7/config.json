@@ -1,0 +1,23 @@
+{
+  "slug": "b7",
+  "displayId": "B7",
+  "title": "装备树",
+  "lectureNo": 7,
+  "lectureTitle": "有依赖的背包问题",
+  "difficulty": "提高+",
+  "tags": [
+    "依赖背包",
+    "森林",
+    "树形背包"
+  ],
+  "timeLimitMs": 1000,
+  "memoryLimitMb": 256,
+  "statementFile": "statement.md",
+  "samples": [
+    {
+      "input": "10 5\n2 3 0\n3 4 1\n5 9 0\n2 1 2\n4 6 3\n",
+      "output": "16\n",
+      "note": "选装备 1、2（依赖链 1←2）与独立的装备 3：重量 2+3+5=10，价值 3+4+9=16。"
+    }
+  ]
+}

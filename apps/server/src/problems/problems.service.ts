@@ -122,7 +122,9 @@ export class ProblemsService implements OnModuleInit {
   /** 列表：不含题面正文，供列表页展示 */
   list() {
     const rows = this.db
-      .prepare("SELECT * FROM problems WHERE enabled = 1 ORDER BY display_id")
+      .prepare(
+        "SELECT * FROM problems WHERE enabled = 1 ORDER BY substr(display_id, 1, 1), CAST(substr(display_id, 2) AS INTEGER)"
+      )
       .all() as ProblemRow[];
     return rows.map((r) => ({
       slug: r.slug,

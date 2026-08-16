@@ -1,0 +1,23 @@
+{
+  "slug": "a8",
+  "displayId": "A8",
+  "title": "选课",
+  "lectureNo": 8,
+  "lectureTitle": "泛化物品",
+  "difficulty": "提高",
+  "tags": [
+    "树形DP",
+    "分组背包",
+    "泛化物品"
+  ],
+  "timeLimitMs": 1000,
+  "memoryLimitMb": 256,
+  "statementFile": "statement.md",
+  "samples": [
+    {
+      "input": "7 4\n2 2\n0 1\n0 4\n2 1\n7 1\n7 6\n2 2\n",
+      "output": "13\n",
+      "note": "选课程 3（无先修，4 学分）与链 2→7→6（1+2+6=9 学分），共 13 学分。"
+    }
+  ]
+}

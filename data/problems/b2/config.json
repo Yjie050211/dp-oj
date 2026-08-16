@@ -1,0 +1,23 @@
+{
+  "slug": "b2",
+  "displayId": "B2",
+  "title": "有线电视网",
+  "lectureNo": 8,
+  "lectureTitle": "泛化物品",
+  "difficulty": "提高+",
+  "tags": [
+    "树形背包",
+    "泛化物品",
+    "上界优化"
+  ],
+  "timeLimitMs": 1500,
+  "memoryLimitMb": 256,
+  "statementFile": "statement.md",
+  "samples": [
+    {
+      "input": "5 3\n1 2\n2 2\n2 2\n1 25\n0\n10\n10\n",
+      "output": "2\n",
+      "note": "树：1→2（费用 2）→叶子 3（付费 0）、叶子 4（付费 10）；1→叶子 5（费用 25，付费 10）。全接收益 −11；接通叶子 3、4 收益 0+10−2−2−2=4 ≥ 0，共 2 个用户；接通叶子 5 必亏。最优 2。"
+    }
+  ]
+}
