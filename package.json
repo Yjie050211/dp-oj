@@ -1,0 +1,13 @@
+{
+  "name": "dp-oj",
+  "version": "0.1.0",
+  "private": true,
+  "description": "背包九讲在线评测与练习平台（个人自学）",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @dp-oj/server --filter @dp-oj/web dev",
+    "dev:server": "pnpm --filter @dp-oj/server dev",
+    "dev:web": "pnpm --filter @dp-oj/web dev",
+    "build": "pnpm -r build"
+  },
+  "engines": { "node": ">=20" }
+}
