@@ -11,11 +11,11 @@ interface Props {
 export default function ProblemTimer({ slug, autoStart }: Props) {
   const { status, elapsedMs, start, pause, resume, stop, reset } = useTimer(slug);
 
-  // 自动开始：仅在首次挂载且未开始时触发一次
+  // 自动开始：仅对 idle 状态生效（running/paused/done 不打断，避免吞掉历史计时段）
   useEffect(() => {
-    if (autoStart) start();
+    if (autoStart && status === "idle") start();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [status, autoStart]);
 
   return (
     <div className={"timer" + (status === "running" ? " running" : "")}>

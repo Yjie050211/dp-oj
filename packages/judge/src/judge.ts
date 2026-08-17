@@ -24,6 +24,13 @@ export async function judge(req: JudgeRequest): Promise<SubmissionResult> {
   const runner = req.runner ?? new LocalProcessRunner();
   const limits: JudgeLimits = { ...DEFAULT_LIMITS, ...req.limits };
 
+  if (req.testcases.length === 0) {
+    return {
+      verdict: Verdict.SE, compileOutput: null, totalTimeMs: 0, maxMemoryKb: null,
+      cases: [], error: "该题没有测试用例",
+    };
+  }
+
   // 0. 准备工作目录并写入源码（按语言约定的文件名）
   try {
     mkdirSync(req.workDir, { recursive: true });
@@ -36,15 +43,25 @@ export async function judge(req: JudgeRequest): Promise<SubmissionResult> {
     };
   }
 
+  // Docker 容器模式下运行命令保持容器内相对路径（镜像内 toolchain 编译 Linux 产物）
+  const isDocker = req.runner instanceof DockerRunner;
+  // Docker 容器内是 Linux：Go 编译产物名必须是 main（-o main.exe 会导致运行找不到文件）
+  const compLang = isDocker && lang.id === "go"
+    ? { ...lang, compileCmd: ["go", "build", "-o", "main", "main.go"] }
+    : lang;
+
   // 1. 编译
   let compileOutput = "";
   try {
-    const comp = await compileSource(lang, req.workDir, runner, limits.compileTimeoutMs);
+    const comp = await compileSource(compLang, req.workDir, runner, limits.compileTimeoutMs);
     compileOutput = comp.output;
     if (!comp.ok) {
       return {
-        verdict: Verdict.CE, compileOutput, totalTimeMs: 0, maxMemoryKb: null,
-        cases: [], error: null,
+        verdict: comp.systemError ? Verdict.SE : Verdict.CE,
+        compileOutput: comp.systemError ? null : compileOutput,
+        totalTimeMs: 0, maxMemoryKb: null,
+        cases: [],
+        error: comp.systemError ? "编译器不可用: " + comp.output : null,
       };
     }
   } catch (err) {
@@ -54,11 +71,26 @@ export async function judge(req: JudgeRequest): Promise<SubmissionResult> {
     };
   }
 
-  // Docker 容器模式下运行命令保持容器内相对路径（镜像内 toolchain 编译 Linux 产物）
-  const isDocker = req.runner instanceof DockerRunner;
-  const artifactPath = isDocker ? null : artifactPathIn(lang, req.workDir);
-  const runCmd = isDocker ? [...lang.runCmd] : resolveRunCmd(lang.runCmd, artifactPath, req.workDir);
-  const timeLimitMs = limits.timeMs * lang.timeFactor;
+  const artifactPath = isDocker ? null : artifactPathIn(compLang, req.workDir);
+  // 本地模式产物缺失：编译配置异常，判 CE 而非运行后 SE
+  if (!isDocker && compLang.artifact && !artifactPath) {
+    return {
+      verdict: Verdict.CE, compileOutput, totalTimeMs: 0, maxMemoryKb: null,
+      cases: [], error: null,
+    };
+  }
+  const runCmd = isDocker ? [...compLang.runCmd] : resolveRunCmd(compLang.runCmd, artifactPath, req.workDir);
+  const timeLimitMs = limits.timeMs * compLang.timeFactor;
+
+  // Java 按题目内存上限动态设置 -Xmx（Docker 场景容器 --memory 与 JVM 堆联动）
+  let finalRunCmd = runCmd;
+  if (compLang.id === "java") {
+    finalRunCmd = runCmd.map((arg) => {
+      if (arg.startsWith("-Xmx")) return "-Xmx" + limits.memoryMb + "m";
+      if (arg.startsWith("-Xss")) return "-Xss16m";
+      return arg;
+    });
+  }
 
   // 2. 逐组运行
   const cases: CaseResult[] = [];
@@ -79,12 +111,13 @@ export async function judge(req: JudgeRequest): Promise<SubmissionResult> {
     }
 
     const r = await runner.run({
-      command: runCmd[0],
-      args: runCmd.slice(1),
+      command: finalRunCmd[0],
+      args: finalRunCmd.slice(1),
       cwd: req.workDir,
       stdin: input,
       timeLimitMs,
       outputLimitBytes: limits.outputBytes,
+      memoryLimitMb: limits.memoryMb,
     });
 
     totalTimeMs += r.timeMs;
@@ -99,7 +132,7 @@ export async function judge(req: JudgeRequest): Promise<SubmissionResult> {
       verdict = Verdict.SE;
     } else if (r.exitCode !== 0 && !r.outputTruncated) {
       verdict = Verdict.RE;
-    } else if (r.outputTruncated || !compareOutput(expected, r.stdout)) {
+    } else if (r.outputTruncated || !compareOutput(expected, r.stdoutFull ?? r.stdout)) {
       verdict = Verdict.WA; // 输出超限（OLE）归 WA
     } else {
       verdict = Verdict.AC;
@@ -111,7 +144,7 @@ export async function judge(req: JudgeRequest): Promise<SubmissionResult> {
       timeMs: Math.round(r.timeMs * 10) / 10,
       memoryKb: r.memoryKb,
       exitCode: r.exitCode,
-      actualOutput: verdict === Verdict.WA ? r.stdout.slice(0, CASE_OUTPUT_CAP) : null,
+      actualOutput: verdict === Verdict.WA ? (r.stdoutFull ?? r.stdout).slice(0, CASE_OUTPUT_CAP) : null,
       expectedOutput: verdict === Verdict.WA ? expected.slice(0, CASE_OUTPUT_CAP) : null,
       stderr: verdict === Verdict.RE ? r.stderr.slice(0, CASE_OUTPUT_CAP) : null,
       outputTruncated: r.outputTruncated,

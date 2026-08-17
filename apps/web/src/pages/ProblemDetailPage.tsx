@@ -61,6 +61,11 @@ export default function ProblemDetailPage() {
         // 忽略
       }
     }
+    try {
+      localStorage.removeItem("dp-oj-timer-" + slug);
+    } catch {
+      // 忽略
+    }
     if (confirmTimerRef.current !== null) window.clearTimeout(confirmTimerRef.current);
     setConfirming(false);
     setResetKey((k) => k + 1);
@@ -82,7 +87,7 @@ export default function ProblemDetailPage() {
               <h1>{problem.title}</h1>
               <span className={"difficulty " + difficultyClass(problem.difficulty)}>{problem.difficulty}</span>
               <span className="title-spacer" />
-              <ProblemTimer key={"timer-" + resetKey} slug={problem.slug} autoStart={autoStart} />
+              <ProblemTimer key={"timer-" + problem.slug + "-" + resetKey} slug={problem.slug} autoStart={autoStart} />
             </div>
             <div className="prob-meta">
               <span className="lecture">第 {problem.lectureNo} 讲 · {problem.lectureTitle}</span>
@@ -119,7 +124,7 @@ export default function ProblemDetailPage() {
           </section>
 
           <SubmitPanel
-            key={"submit-" + resetKey}
+            key={"submit-" + problem.slug + "-" + resetKey}
             problemSlug={problem.slug}
             samples={problem.samples}
             onReset={onResetClick}

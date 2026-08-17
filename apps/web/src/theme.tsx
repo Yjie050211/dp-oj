@@ -31,10 +31,14 @@ const STORAGE_KEY = "dp-oj-theme";
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [mode, setModeState] = useState<ThemeMode>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved === "auto" || saved === "dark" || saved === "light" || saved === "oled" || saved === "nature"
-      ? (saved as ThemeMode)
-      : "auto";
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved === "auto" || saved === "dark" || saved === "light" || saved === "oled" || saved === "nature"
+        ? (saved as ThemeMode)
+        : "auto";
+    } catch {
+      return "auto"; // 隐私模式等存储不可用场景
+    }
   });
   const [systemDark, setSystemDark] = useState<boolean>(
     () => window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -53,7 +57,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", resolved);
-    localStorage.setItem(STORAGE_KEY, mode);
+    try {
+      localStorage.setItem(STORAGE_KEY, mode);
+    } catch {
+      // 存储不可用不影响主题切换
+    }
   }, [resolved, mode]);
 
   const setMode = useCallback((m: ThemeMode) => setModeState(m), []);

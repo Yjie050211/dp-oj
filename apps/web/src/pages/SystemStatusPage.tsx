@@ -31,7 +31,9 @@ export default function SystemStatusPage() {
     const load = async () => {
       try {
         const res = await fetch("/api/system/health");
+        if (!res.ok) throw new Error("HTTP " + res.status);
         const data = (await res.json()) as SystemHealth;
+        if (!data || !Array.isArray(data.engines)) throw new Error("响应格式异常");
         if (alive) {
           setHealth(data);
           setError(null);

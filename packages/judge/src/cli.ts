@@ -34,7 +34,7 @@ async function main(): Promise<void> {
 
   const files = readdirSync(casesDir)
     .filter((f) => f.endsWith(".in"))
-    .sort();
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true })); // 数字排序："10.in" 排在 "2.in" 之后
 
   const req: JudgeRequest = {
     languageId: lang,

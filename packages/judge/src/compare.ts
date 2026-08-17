@@ -4,7 +4,9 @@
  */
 export function normalizeOutput(s: string): string {
   return s
+    .replace(/^\uFEFF/, "") // 剥 UTF-8 BOM（记事本保存的 .out 常见）
     .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n") // 孤立 CR 统一为换行
     .split("\n")
     .map((line) => line.replace(/[ \t]+$/g, ""))
     .join("\n")

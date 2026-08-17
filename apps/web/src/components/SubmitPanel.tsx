@@ -117,7 +117,12 @@ export default function SubmitPanel({
 
   // 切换语言时读写草稿
   useEffect(() => {
-    const saved = localStorage.getItem(storageKey(problemSlug, langId));
+    let saved: string | null = null;
+    try {
+      saved = localStorage.getItem(storageKey(problemSlug, langId));
+    } catch {
+      saved = null;
+    }
     setCode(saved ?? TEMPLATES[langId] ?? "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [langId, problemSlug]);
@@ -129,13 +134,21 @@ export default function SubmitPanel({
   }, []);
 
   const onLangChange = (next: string) => {
-    localStorage.setItem(storageKey(problemSlug, langId), code);
+    try {
+      localStorage.setItem(storageKey(problemSlug, langId), code);
+    } catch {
+      // 存储不可用不影响切换
+    }
     setLangId(next);
   };
 
   const onCodeChange = (v: string) => {
     setCode(v);
-    localStorage.setItem(storageKey(problemSlug, langId), v);
+    try {
+      localStorage.setItem(storageKey(problemSlug, langId), v);
+    } catch {
+      // 存储不可用不影响编辑
+    }
   };
 
   /** 即时测试：POST /api/judge/run */
@@ -205,9 +218,19 @@ export default function SubmitPanel({
   };
 
   const poll = (id: number) => {
+    let attempts = 0;
+    const MAX_ATTEMPTS = 120; // 最多轮询约 2 分钟，防判题队列故障时无限轮询
     const tick = async () => {
+      attempts++;
+      if (attempts > MAX_ATTEMPTS) {
+        if (timerRef.current !== null) window.clearInterval(timerRef.current);
+        setSubmitting(false);
+        setError("判题超时未完成，请稍后在提交记录中查看结果。");
+        return;
+      }
       try {
         const res = await fetch("/api/submissions/" + id);
+        if (!res.ok) throw new Error("HTTP " + res.status);
         const data = (await res.json()) as SubmissionDetail;
         setSubmission(data);
         if (data.status === "FINISHED") {

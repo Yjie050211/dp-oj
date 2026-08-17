@@ -36,5 +36,6 @@ export function artifactPathIn(lang: LanguageConfig, workDir: string): string | 
     const p = join(workDir, name);
     if (existsSync(p)) return p;
   }
-  return join(workDir, candidates[0]);
+  // 产物缺失返回 null，调用方据此判 CE（而不是 spawn ENOENT 后归 SE）
+  return null;
 }

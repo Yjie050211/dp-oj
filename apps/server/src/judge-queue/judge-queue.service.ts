@@ -1,10 +1,11 @@
-import { Inject, Injectable, Logger, OnModuleDestroy } from "@nestjs/common";
+import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
 import { LANGUAGES, SubmissionStatus, Verdict } from "@dp-oj/common";
 import { createRunner, judge } from "@dp-oj/judge";
-import { mkdtempSync } from "node:fs";
+import type { SubmissionResult } from "@dp-oj/judge";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { DATABASE } from "../database/database.module";
+import { DATABASE, DATA_DIR } from "../database/database.module";
 
 interface SubmissionRow {
   id: number;
@@ -24,12 +25,40 @@ interface TestcaseRow {
  * 提交 id 入队 → 单个 worker 串行处理 → 判题结果写回 submissions 表。
  */
 @Injectable()
-export class JudgeQueueService implements OnModuleDestroy {
+export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(JudgeQueueService.name);
   private chain: Promise<void> = Promise.resolve();
   private readonly pending = new Set<number>();
 
+  /** 单次提交的整体墙钟上限（防队头阻塞） */
+  private static readonly SUBMISSION_TOTAL_TIMEOUT_MS = 5 * 60 * 1000;
+
   constructor(@Inject(DATABASE) private readonly db: any) {}
+
+  /** 启动时把上次运行遗留的非终态提交统一置为 SE（避免永久卡 RUNNING/PENDING） */
+  onModuleInit(): void {
+    try {
+      const stale = this.db
+        .prepare("SELECT COUNT(*) AS n FROM submissions WHERE status != ?")
+        .get(SubmissionStatus.FINISHED) as { n: number };
+      if (stale.n > 0) {
+        const seResult = JSON.stringify({
+          verdict: Verdict.SE,
+          compileOutput: null,
+          totalTimeMs: 0,
+          maxMemoryKb: null,
+          cases: [],
+          error: "判题机重启，提交被中断",
+        });
+        this.db
+          .prepare("UPDATE submissions SET status = ?, verdict = ?, result_json = ? WHERE status != ?")
+          .run(SubmissionStatus.FINISHED, Verdict.SE, seResult, SubmissionStatus.FINISHED);
+        this.logger.warn("已把 " + stale.n + " 条未完成提交重置为 SE（判题机重启）");
+      }
+    } catch (err) {
+      this.logger.error("重置遗留提交失败: " + String(err));
+    }
+  }
 
   enqueue(submissionId: number): void {
     if (this.pending.has(submissionId)) return;
@@ -56,14 +85,17 @@ export class JudgeQueueService implements OnModuleDestroy {
 
     this.db.prepare("UPDATE submissions SET status = ? WHERE id = ?").run(SubmissionStatus.RUNNING, id);
 
-    let result;
+    const workDir = mkdtempSync(join(tmpdir(), "dp-oj-sub-"));
+    let result: SubmissionResult;
+    let judgePromise: Promise<SubmissionResult> | null = null;
     try {
       if (!lang) throw new Error("未知语言");
       if (!problem) throw new Error("题目不存在");
-      result = await judge({
+      // 单提交总时长上限：超时判 SE，防止队头长时间阻塞后续提交
+      judgePromise = judge({
         languageId: row.language_id,
         sourcePath: row.code_path,
-        workDir: mkdtempSync(join(tmpdir(), "dp-oj-sub-")),
+        workDir,
         testcases: cases.map((c) => ({
           groupNo: c.group_no,
           inputPath: c.input_path,
@@ -75,6 +107,15 @@ export class JudgeQueueService implements OnModuleDestroy {
         },
         runner: createRunner(),
       });
+      result = await Promise.race([
+        judgePromise,
+        new Promise<never>((_, reject) =>
+          setTimeout(
+            () => reject(new Error("提交整体超时")),
+            JudgeQueueService.SUBMISSION_TOTAL_TIMEOUT_MS
+          )
+        ),
+      ]);
     } catch (err) {
       result = {
         verdict: Verdict.SE,
@@ -82,8 +123,19 @@ export class JudgeQueueService implements OnModuleDestroy {
         totalTimeMs: 0,
         maxMemoryKb: null,
         cases: [],
-        error: String(err),
+        error: String(err).split(DATA_DIR).join("<data>"), // 脱敏绝对路径
       };
+    } finally {
+      // 总超时场景下 judge 仍可能占用 workDir：先等 judge 自然结束（组级超时会兜底），
+      // 再删除目录，避免 Windows 下 EBUSY/EPERM 导致终态写回失败
+      if (judgePromise) {
+        await judgePromise.catch(() => undefined);
+      }
+      try {
+        rmSync(workDir, { recursive: true, force: true });
+      } catch {
+        // 删除失败不阻塞终态写回
+      }
     }
 
     this.db

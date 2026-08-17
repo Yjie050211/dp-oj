@@ -9,5 +9,5 @@
     "dev:web": "pnpm --filter @dp-oj/web dev",
     "build": "pnpm -r build"
   },
-  "engines": { "node": ">=20" }
+  "engines": { "node": ">=22.13" }
 }

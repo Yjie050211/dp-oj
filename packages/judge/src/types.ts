@@ -70,14 +70,19 @@ export interface RunInput {
   stdin: string;
   timeLimitMs: number;
   outputLimitBytes: number;
+  /** 内存上限（MB）。本地运行器为尽力而为；Docker 运行器强制生效 */
+  memoryLimitMb: number;
 }
 
 export interface RunResult {
   ok: boolean;
   exitCode: number | null;
   timedOut: boolean;
+  /** 输出节选（截断至 200KB，用于展示/错误信息） */
   stdout: string;
   stderr: string;
+  /** 完整 stdout（受 outputLimitBytes 约束），判题比对必须用它，避免截断误判 */
+  stdoutFull: string;
   timeMs: number;
   memoryKb: number | null;
   outputTruncated: boolean;

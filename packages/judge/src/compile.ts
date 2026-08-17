@@ -3,6 +3,8 @@ import type { Runner } from "./types";
 
 export interface CompileResult {
   ok: boolean;
+  /** 系统级失败（编译器缺失/无法启动）—— 应判 SE 而非 CE */
+  systemError: boolean;
   /** 运行入口（可执行文件或脚本完整路径） */
   artifactPath: string | null;
   /** 编译输出（成功时为编译器 stdout+stderr，失败时为完整错误信息） */
@@ -21,7 +23,7 @@ export async function compileSource(
   compileTimeoutMs: number
 ): Promise<CompileResult> {
   if (!lang.compileCmd || lang.compileCmd.length === 0) {
-    return { ok: true, artifactPath: null, output: "" };
+    return { ok: true, systemError: false, artifactPath: null, output: "" };
   }
 
   const r = await runner.run({
@@ -31,18 +33,20 @@ export async function compileSource(
     stdin: "",
     timeLimitMs: compileTimeoutMs,
     outputLimitBytes: 1024 * 1024,
+    memoryLimitMb: 512,
   });
 
   const output = (r.stdout + (r.stderr ? "\n" + r.stderr : "")).slice(0, 200 * 1024);
 
   if (r.timedOut) {
-    return { ok: false, artifactPath: null, output: "编译超时（" + compileTimeoutMs + "ms）\n" + output };
+    return { ok: false, systemError: false, artifactPath: null, output: "编译超时（" + compileTimeoutMs + "ms）\n" + output };
   }
   if (r.error) {
-    return { ok: false, artifactPath: null, output: "无法启动编译器: " + r.error };
+    // 编译器缺失/无法启动：环境故障归 SE，不归用户 CE
+    return { ok: false, systemError: true, artifactPath: null, output: "无法启动编译器: " + r.error };
   }
   if (r.exitCode !== 0) {
-    return { ok: false, artifactPath: null, output };
+    return { ok: false, systemError: false, artifactPath: null, output };
   }
-  return { ok: true, artifactPath: null, output };
+  return { ok: true, systemError: false, artifactPath: null, output };
 }

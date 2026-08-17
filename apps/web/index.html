@@ -7,11 +7,16 @@
     <script>
       // 主题防闪烁：在 React 挂载前根据持久化设置初始化 data-theme
       (function () {
-        var saved = localStorage.getItem("dp-oj-theme");
-        var dark = saved
-          ? saved !== "light" && saved !== "nature"
-          : window.matchMedia("(prefers-color-scheme: dark)").matches;
-        document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+        try {
+          var saved = localStorage.getItem("dp-oj-theme");
+          var dark = saved
+            ? saved !== "light" && saved !== "nature"
+            : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+        } catch (e) {
+          var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          document.documentElement.setAttribute("data-theme", sysDark ? "dark" : "light");
+        }
       })();
     </script>
   </head>

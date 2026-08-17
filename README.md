@@ -5,6 +5,13 @@
 
 ## 快速开始
 
+**一键启动（推荐）**：双击 `start.bat`（首次需先执行一次 `pnpm install`）。
+
+- 自动检查 Node.js/pnpm/Go 环境 → 构建后端 → 分别打开后端(3000)与前端(5173)窗口 → 自动打开浏览器 http://localhost:5173
+- 停止：双击 `stop.bat`（结束 3000/5173 端口上的前后端进程）
+
+**手动启动**（开发模式）：
+
 ```bash
 pnpm install
 pnpm dev        # server: http://localhost:3000/api/system/health ｜ web: http://localhost:5173
@@ -12,14 +19,30 @@ pnpm dev        # server: http://localhost:3000/api/system/health ｜ web: http:
 
 打开 http://localhost:5173 即可开始刷题。
 
+## 安全说明（单机自用）
+
+- 后端**只监听 127.0.0.1**、CORS 仅放行本地前端来源，不向局域网开放。
+- 判题默认走**本地进程沙箱**：超时强杀进程树 + 输出截断；**内存限制为尽力而为**（Windows 无轻量 Job Object 方案），需要严格内存/断网隔离请启用 Docker 沙箱。
+- 提交代码本质上是"在你的机器上以你的权限运行程序"——这是 OJ 的正常功能，请只运行自己写的代码。
+
+## 数据存放位置
+
+- **题库**：`data/problems/`（题面 statement.md + 配置 config.json + 测试数据 cases/，随代码仓库管理）
+- **数据库**：`data/oj.db`（SQLite，存题目元数据、测试用例索引、提交记录与判题结果；WAL 模式，另伴生 oj.db-wal / oj.db-shm 两个文件）
+- **提交的代码**：`data/submissions/<提交ID>/`
+- 服务器从任意目录启动都会定位到同一份数据（`DATA_DIR`/文件位置多级回退解析），也可用环境变量 `DATA_DIR` 强制指定。
+
 ## 功能
 
-- **题库**：九讲对应 12 道基础题（A1-A12）+ 8 道扩展题（B1-B8），题面含 LaTeX 公式
+- **题库**：34 题覆盖九讲（每讲至少 3 题：A1-A12 基础 + B1-B8 扩展 + C1-C14 分类扩充），题面含 LaTeX 公式
+- **九讲分类筛选**：题目列表页按「全部 / 第 1-9 讲」一键过滤
 - **在线编写**：Monaco 编辑器，支持 C++14 / Python 3 / Go / Java 语法高亮与草稿自动保存
 - **即时测试**：「运行样例」一键跑题面样例；「自定义测试」任意 stdin 快速运行（四语言 <2s）
 - **提交判题**：编译 → 逐组沙箱运行 → 输出比对（行末空白不敏感），首败组即终态
 - **结果反馈**：判题结果码 + 总耗时 + 逐组明细 + CE 编译器全文 + WA 期望/实际对比 + RE stderr
 - **提交记录**：最近 50 条提交，点击查看逐组判题详情
+- **做题计时**：每题独立计时器（开始/暂停/继续/停止，跨刷新恢复）+ 自动计时开关 + 一键重置本题
+- **主题**：四套主题（深蓝暗色/明亮/纯黑/护眼纸色）+ 自动跟随系统亮暗
 - **系统状态**：判题机工具链自检（/system 页面）
 
 ## 判题结果码
@@ -34,14 +57,16 @@ pnpm dev        # server: http://localhost:3000/api/system/health ｜ web: http:
 | CE | 编译错误（附编译器全文） |
 | SE | 系统错误 |
 
-## 沙箱模式
+## 沙箱模式（Docker 是否需要？）
 
 - **本地进程（默认）**：spawn 子进程 + 超时强杀进程树 + 输出截断，零外部依赖；Windows 下内存限制为尽力而为。
-- **Docker 容器（可选）**：精确内存限制（--memory）、断网（--network=none）、限核限进程数。启用：
+- **Docker 容器（可选）**：精确内存限制（--memory）、断网（--network=none）、限核限进程数。
+
+**平时刷题完全不需要打开 Docker**——默认就走本地进程沙箱，`start.bat` 也不依赖 Docker。只有当你想启用更严格的容器隔离时才需要 Docker Desktop：
 
 ```powershell
 .\data\docker\build-judge-image.ps1   # 构建判题镜像 dp-oj/judge-env（首次需 Docker Desktop）
-$env:JUDGE_RUNNER = 'docker'            # 切换到容器沙箱
+$env:JUDGE_RUNNER = 'docker'            # 切换到容器沙箱（每次启动前保持 Docker Desktop 运行）
 pnpm dev:server
 ```
 
@@ -84,6 +109,8 @@ node data/seeds/generators/gen-b1-b8.mjs   # 重新生成测试数据（固定�
 - [x] 主题系统：自动昼夜 + 四套主题切换（✅ 2026-08-17）
 - [x] 计时与重置：每题独立计时器 + 一键恢复初始代码（✅ 2026-08-17）
 - [x] 题库扩充 + 分类筛选：34 题对拍 34/34 AC，九讲分类页（✅ 2026-08-17）
+- [x] 一键启动 start.bat / stop.bat（✅ 2026-08-17）
+- [x] 全面审计修复：数据目录 cwd 无关化 / 仅监听 127.0.0.1 / 判题 close 定稿与完整输出比对（消除大输出误判）/ 队列状态机与重启恢复 / 临时目录清理 / 前端计时器与面板跨题污染 / Docker 模式 Go 修复 / health 工具链探测修正（✅ 2026-08-17）
 
 ## 协议说明
 

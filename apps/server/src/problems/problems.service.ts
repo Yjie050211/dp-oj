@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { DATABASE, DATA_DIR } from "../database/database.module";
 
 interface ProblemConfig {
@@ -71,8 +71,21 @@ export class ProblemsService implements OnModuleInit {
         continue;
       }
 
-      const stmtPath = join(dir, cfg.statementFile ?? "statement.md");
-      if (!readFileSync(stmtPath, "utf8")) continue;
+      // statement_file 必须是纯文件名（防路径穿越），且非空
+      const stmtFile = cfg.statementFile ?? "statement.md";
+      if (stmtFile !== basename(stmtFile)) {
+        this.logger.warn("跳过题目 " + slug + ": statement_file 含路径分隔符");
+        continue;
+      }
+      const stmtPath = join(dir, stmtFile);
+      let stmtText = "";
+      try {
+        stmtText = readFileSync(stmtPath, "utf8");
+      } catch (err) {
+        this.logger.warn("跳过题目 " + slug + ": 题面读取失败 " + String(err));
+        continue;
+      }
+      if (!stmtText) continue;
 
       const upsert = this.db.prepare(
         `INSERT INTO problems

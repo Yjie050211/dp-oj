@@ -29,8 +29,11 @@ export class SubmissionsService {
     if (!lang) {
       throw new BadRequestException("不支持的语言: " + input.languageId);
     }
-    if (!input.code || input.code.trim().length === 0) {
+    if (typeof input.code !== "string" || input.code.trim().length === 0) {
       throw new BadRequestException("代码不能为空");
+    }
+    if (typeof input.problemSlug !== "string" || input.problemSlug.length === 0 || input.problemSlug.length > 128) {
+      throw new BadRequestException("题目标识不合法");
     }
     if (input.code.length > 200 * 1024) {
       throw new BadRequestException("代码过长（上限 200KB）");

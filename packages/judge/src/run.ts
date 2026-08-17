@@ -43,20 +43,34 @@ export async function runCode(req: RunCodeRequest): Promise<RunCodeResult> {
   mkdirSync(req.workDir, { recursive: true });
   writeFileSync(join(req.workDir, lang.sourceFile), readFileSync(req.sourcePath, "utf8"));
 
-  const comp = await compileSource(lang, req.workDir, runner, limits.compileTimeoutMs);
+  const isDocker = req.runner instanceof DockerRunner;
+  // Docker 容器内是 Linux：Go 编译产物名必须是 main
+  const compLang = isDocker && lang.id === "go"
+    ? { ...lang, compileCmd: ["go", "build", "-o", "main", "main.go"] }
+    : lang;
+
+  const comp = await compileSource(compLang, req.workDir, runner, limits.compileTimeoutMs);
   if (!comp.ok) {
     return { languageLabel: lang.label, compiled: false, compileOutput: comp.output, run: null };
   }
 
-  const isDocker = req.runner instanceof DockerRunner;
-  const runCmd = isDocker ? [...lang.runCmd] : resolveRunCmd(lang.runCmd, artifactPathIn(lang, req.workDir), req.workDir);
+  const artifactPath = isDocker ? null : artifactPathIn(compLang, req.workDir);
+  let runCmd = isDocker ? [...compLang.runCmd] : resolveRunCmd(compLang.runCmd, artifactPath, req.workDir);
+  if (compLang.id === "java") {
+    runCmd = runCmd.map((arg) => {
+      if (arg.startsWith("-Xmx")) return "-Xmx" + limits.memoryMb + "m";
+      if (arg.startsWith("-Xss")) return "-Xss16m";
+      return arg;
+    });
+  }
   const run = await runner.run({
     command: runCmd[0],
     args: runCmd.slice(1),
     cwd: req.workDir,
     stdin: req.stdin,
-    timeLimitMs: limits.timeMs * lang.timeFactor,
+    timeLimitMs: limits.timeMs * compLang.timeFactor,
     outputLimitBytes: limits.outputBytes,
+    memoryLimitMb: limits.memoryMb,
   });
 
   return { languageLabel: lang.label, compiled: true, compileOutput: comp.output, run };
