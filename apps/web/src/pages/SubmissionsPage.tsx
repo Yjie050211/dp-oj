@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import SubmissionResultView from "../components/SubmissionResultView";
 import { VERDICT_CLASS, type SubmissionDetail } from "../types";
@@ -27,35 +27,54 @@ export default function SubmissionsPage() {
   const [openId, setOpenId] = useState<number | null>(null);
   const [detail, setDetail] = useState<SubmissionDetail | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const reqSeqRef = useRef(0);
 
   useEffect(() => {
+    let alive = true;
     fetch("/api/submissions")
       .then((r) => {
         if (!r.ok) throw new Error("HTTP " + r.status);
         return r.json();
       })
       .then((data: SubmissionSummary[]) => {
+        if (!alive) return;
         setItems(data);
         setError(null);
       })
-      .catch((e) => setError(String(e)));
+      .catch((e) => {
+        if (alive) setError(String(e));
+      });
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const toggle = (id: number) => {
     if (openId === id) {
+      reqSeqRef.current++; // 使在途请求失效
       setOpenId(null);
       setDetail(null);
       return;
     }
+    const seq = ++reqSeqRef.current;
     setOpenId(id);
+    setDetail(null); // 打开新行先清空，避免闪现上一行详情
     setLoadingDetail(true);
     fetch("/api/submissions/" + id)
-      .then((r) => r.json())
-      .then((d: SubmissionDetail) => {
-        setDetail(d);
-        setLoadingDetail(false);
+      .then((r) => {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
       })
-      .catch(() => setLoadingDetail(false));
+      .then((d: SubmissionDetail) => {
+        // 乱序防护：仅当本次请求仍是最新时更新
+        if (seq === reqSeqRef.current) {
+          setDetail(d);
+          setLoadingDetail(false);
+        }
+      })
+      .catch(() => {
+        if (seq === reqSeqRef.current) setLoadingDetail(false);
+      });
   };
 
   return (
@@ -69,10 +88,25 @@ export default function SubmissionsPage() {
 
       {items && (
         <div className="sub-list">
-          {items.length === 0 && <div className="banner">还没有提交记录，去<a href="/">题目列表</a>练一道吧。</div>}
+          {items.length === 0 && (
+            <div className="banner">
+              还没有提交记录，去<Link to="/">题目列表</Link>练一道吧。
+            </div>
+          )}
           {items.map((s) => (
             <div key={s.id} className="sub-item">
-              <button className="sub-row" onClick={() => toggle(s.id)}>
+              <div
+                className="sub-row"
+                role="button"
+                tabIndex={0}
+                onClick={() => toggle(s.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    toggle(s.id);
+                  }
+                }}
+              >
                 <span className="sub-id">#{s.id}</span>
                 <span className="sub-problem">
                   <Link
@@ -89,7 +123,7 @@ export default function SubmissionsPage() {
                 ) : (
                   <span className="verdict small v-se">{s.status}</span>
                 )}
-              </button>
+              </div>
               {openId === s.id && (
                 <div className="sub-detail">
                   {loadingDetail && <div className="banner">加载详情中…</div>}

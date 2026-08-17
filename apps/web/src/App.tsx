@@ -29,6 +29,19 @@ export default function App() {
           <Route path="/problems/:slug" element={<ProblemDetailPage />} />
           <Route path="/submissions" element={<SubmissionsPage />} />
           <Route path="/system" element={<SystemStatusPage />} />
+          <Route
+            path="*"
+            element={
+              <div className="page">
+                <div className="banner error">
+                  页面不存在。{" "}
+                  <Link to="/" className="back-link">
+                    返回题目列表
+                  </Link>
+                </div>
+              </div>
+            }
+          />
         </Routes>
       </main>
     </div>

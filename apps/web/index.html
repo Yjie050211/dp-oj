@@ -9,9 +9,10 @@
       (function () {
         try {
           var saved = localStorage.getItem("dp-oj-theme");
-          var dark = saved
-            ? saved !== "light" && saved !== "nature"
-            : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var dark =
+            !saved || saved === "auto"
+              ? window.matchMedia("(prefers-color-scheme: dark)").matches
+              : saved !== "light" && saved !== "nature";
           document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
         } catch (e) {
           var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;

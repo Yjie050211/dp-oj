@@ -74,10 +74,10 @@ export default function ProblemListPage() {
 
       {error && <div className="banner error">加载失败：{error}</div>}
 
-      {filtered && (
+      {problems && (
         <div className="prob-list">
-          {filtered.length === 0 && <div className="banner">该分类下暂无题目。</div>}
-          {filtered.map((p) => (
+          {(filtered ?? []).length === 0 && <div className="banner">该分类下暂无题目。</div>}
+          {(filtered ?? []).map((p) => (
             <Link key={p.slug} to={"/problems/" + p.slug} className="prob-card">
               <div className="prob-id">{p.displayId}</div>
               <div className="prob-main">
