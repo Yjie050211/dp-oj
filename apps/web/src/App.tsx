@@ -1,6 +1,8 @@
 import { Link, Route, Routes } from "react-router-dom";
 import SettingsPanel from "./components/SettingsPanel";
 import ThemeSwitcher from "./components/ThemeSwitcher";
+import CardsPage from "./pages/CardsPage";
+import DashboardPage from "./pages/DashboardPage";
 import ProblemListPage from "./pages/ProblemListPage";
 import ProblemDetailPage from "./pages/ProblemDetailPage";
 import ReviewPage from "./pages/ReviewPage";
@@ -18,6 +20,8 @@ export default function App() {
           <div className="nav-links">
             <Link to="/">题目</Link>
             <Link to="/review">复习计划</Link>
+            <Link to="/cards">知识卡片</Link>
+            <Link to="/dashboard">进度统计</Link>
             <Link to="/submissions">提交记录</Link>
             <Link to="/system">系统状态</Link>
           </div>
@@ -30,6 +34,8 @@ export default function App() {
           <Route path="/" element={<ProblemListPage />} />
           <Route path="/problems/:slug" element={<ProblemDetailPage />} />
           <Route path="/review" element={<ReviewPage />} />
+          <Route path="/cards" element={<CardsPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/submissions" element={<SubmissionsPage />} />
           <Route path="/system" element={<SystemStatusPage />} />
           <Route

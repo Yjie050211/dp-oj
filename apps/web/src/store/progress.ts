@@ -6,6 +6,8 @@
  * 键名：dp-oj-progress-v1
  */
 
+import { recordActivity } from "./activity";
+
 export type ProgressState = "unseen" | "attempted" | "reviewing" | "mastered";
 
 export interface ProblemProgress {
@@ -25,6 +27,8 @@ export interface ProblemProgress {
   /** 非 AC 次数（错题计数） */
   wrongCount: number;
   lastWrongAt: number | null;
+  /** 首次 AC 时的累计做题时长（ms，从计时器快照读取） */
+  firstAcMs: number | null;
 }
 
 const KEY = "dp-oj-progress-v1";
@@ -46,6 +50,7 @@ function defaultProgress(slug: string): ProblemProgress {
     lastReviewedAt: null,
     wrongCount: 0,
     lastWrongAt: null,
+    firstAcMs: null,
   };
 }
 
@@ -107,7 +112,19 @@ export function recordVerdict(slug: string, verdict: string): ProblemProgress {
     p.lastVerdict = verdict;
     if (verdict === "AC") {
       p.acCount++;
-      if (p.firstAcAt === null) p.firstAcAt = Date.now();
+      if (p.firstAcAt === null) {
+        p.firstAcAt = Date.now();
+        // 快照当前计时器的累计用时（首次 AC 用时统计）
+        try {
+          const raw = localStorage.getItem("dp-oj-timer-" + slug);
+          if (raw) {
+            const timer = JSON.parse(raw) as { status?: string; accumulatedMs?: number };
+            if (typeof timer.accumulatedMs === "number") p.firstAcMs = timer.accumulatedMs;
+          }
+        } catch {
+          // 忽略
+        }
+      }
       if (p.state === "unseen" || p.state === "attempted") {
         // 首次通过：1 天后首次复习
         p.state = "reviewing";
@@ -126,6 +143,8 @@ export function recordVerdict(slug: string, verdict: string): ProblemProgress {
         p.interval = 1;
       }
     }
+    // 活动统计（每日热力图 + 结果分布）
+    recordActivity(verdict);
   });
 }
 
