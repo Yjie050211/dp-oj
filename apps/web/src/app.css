@@ -316,6 +316,38 @@ a { color: var(--accent); text-decoration: none; }
   white-space: pre-wrap; word-break: break-all; max-height: 220px; overflow-y: auto; color: var(--code-fg);
 }
 
+/* ---------- 计时器与重置 ---------- */
+.title-spacer { flex: 1; }
+.timer { display: inline-flex; align-items: center; gap: 10px; }
+.timer-clock {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 15px; font-weight: 700; letter-spacing: 0.5px;
+  color: var(--text); background: var(--panel2);
+  border: 1px solid var(--border); border-radius: 999px; padding: 5px 14px;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color var(--transition);
+}
+.timer.running .timer-clock { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent); }
+.timer-controls { display: inline-flex; gap: 6px; align-items: center; }
+.timer-btn { padding: 5px 12px; font-size: 12px; }
+.timer-reset { padding: 5px 9px; }
+.timer-done { font-size: 13px; color: var(--muted); font-weight: 600; }
+
+.btn.danger { background: transparent; border: 1px solid var(--v-wa-fg); color: var(--v-wa-fg); }
+.btn.danger:hover { background: var(--v-wa-bg); }
+.btn.danger.confirming { background: var(--v-wa-fg); color: #fff; animation: shake 0.3s ease; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+/* 设置面板开关 */
+.toggle { position: relative; width: 38px; height: 21px; border-radius: 999px; background: var(--border); flex: none; transition: background-color 0.2s; }
+.toggle.on { background: var(--accent); }
+.toggle-knob { position: absolute; top: 2.5px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left 0.2s; }
+.toggle.on .toggle-knob { left: 19px; }
+
 /* ---------- 提交记录 ---------- */
 .sub-list { margin-top: 18px; display: flex; flex-direction: column; gap: 8px; }
 .sub-item {

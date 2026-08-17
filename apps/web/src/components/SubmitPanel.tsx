@@ -75,7 +75,17 @@ function storageKey(slug: string, lang: string): string {
   return "dp-oj-code-" + slug + "-" + lang;
 }
 
-export default function SubmitPanel({ problemSlug, samples }: { problemSlug: string; samples: Sample[] }) {
+export default function SubmitPanel({
+  problemSlug,
+  samples,
+  onReset,
+  resetConfirming = false,
+}: {
+  problemSlug: string;
+  samples: Sample[];
+  onReset?: () => void;
+  resetConfirming?: boolean;
+}) {
   const { isDark } = useTheme();
   const [languages, setLanguages] = useState<LangInfo[]>([]);
   const [langId, setLangId] = useState("cpp");
@@ -243,6 +253,15 @@ export default function SubmitPanel({ problemSlug, samples }: { problemSlug: str
         <button className="btn primary" onClick={submit} disabled={submitting || running || code.trim().length === 0}>
           {submitting ? "判题中…" : "提交"}
         </button>
+        {onReset && (
+          <button
+            className={"btn danger" + (resetConfirming ? " confirming" : "")}
+            onClick={onReset}
+            title="清空本题的代码草稿、计时与判题结果"
+          >
+            {resetConfirming ? "确认重置？" : "🔄 重置本题"}
+          </button>
+        )}
       </div>
 
       <CodeEditor language={langId} value={code} onChange={onCodeChange} isDark={isDark} />

@@ -1,4 +1,5 @@
 import { Link, Route, Routes } from "react-router-dom";
+import SettingsPanel from "./components/SettingsPanel";
 import ThemeSwitcher from "./components/ThemeSwitcher";
 import ProblemListPage from "./pages/ProblemListPage";
 import ProblemDetailPage from "./pages/ProblemDetailPage";
@@ -19,6 +20,7 @@ export default function App() {
             <Link to="/system">系统状态</Link>
           </div>
           <ThemeSwitcher />
+          <SettingsPanel />
         </div>
       </nav>
       <main className="content">

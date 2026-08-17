@@ -1,13 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Markdown from "../components/Markdown";
+import ProblemTimer from "../components/ProblemTimer";
 import SubmitPanel from "../components/SubmitPanel";
+import { useAutoStart } from "../hooks/useTimer";
 import { difficultyClass, type ProblemDetail } from "../types";
+
+const ALL_LANGS = ["cpp", "python", "go", "java"];
 
 export default function ProblemDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const [problem, setProblem] = useState<ProblemDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [autoStart] = useAutoStart();
+
+  // 重置本题：递增 key 重挂计时器与提交面板（内部 state 全部恢复初始）
+  const [resetKey, setResetKey] = useState(0);
+  const [confirming, setConfirming] = useState(false);
+  const confirmTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -30,6 +40,32 @@ export default function ProblemDetailPage() {
     };
   }, [slug]);
 
+  useEffect(() => {
+    return () => {
+      if (confirmTimerRef.current !== null) window.clearTimeout(confirmTimerRef.current);
+    };
+  }, []);
+
+  const onResetClick = () => {
+    if (!confirming) {
+      // 第一次点击进入确认态，3 秒未确认自动恢复
+      setConfirming(true);
+      confirmTimerRef.current = window.setTimeout(() => setConfirming(false), 3000);
+      return;
+    }
+    // 确认重置：清草稿（所有语言）+ 计时 + 重挂面板
+    for (const lang of ALL_LANGS) {
+      try {
+        localStorage.removeItem("dp-oj-code-" + slug + "-" + lang);
+      } catch {
+        // 忽略
+      }
+    }
+    if (confirmTimerRef.current !== null) window.clearTimeout(confirmTimerRef.current);
+    setConfirming(false);
+    setResetKey((k) => k + 1);
+  };
+
   return (
     <div className="page">
       <Link to="/" className="back-link">
@@ -45,6 +81,8 @@ export default function ProblemDetailPage() {
               <span className="prob-id big">{problem.displayId}</span>
               <h1>{problem.title}</h1>
               <span className={"difficulty " + difficultyClass(problem.difficulty)}>{problem.difficulty}</span>
+              <span className="title-spacer" />
+              <ProblemTimer key={"timer-" + resetKey} slug={problem.slug} autoStart={autoStart} />
             </div>
             <div className="prob-meta">
               <span className="lecture">第 {problem.lectureNo} 讲 · {problem.lectureTitle}</span>
@@ -80,7 +118,13 @@ export default function ProblemDetailPage() {
             ))}
           </section>
 
-          <SubmitPanel problemSlug={problem.slug} samples={problem.samples} />
+          <SubmitPanel
+            key={"submit-" + resetKey}
+            problemSlug={problem.slug}
+            samples={problem.samples}
+            onReset={onResetClick}
+            resetConfirming={confirming}
+          />
         </>
       )}
 
