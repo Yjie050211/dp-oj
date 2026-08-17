@@ -1,0 +1,22 @@
+{
+  "slug": "c8",
+  "displayId": "C8",
+  "title": "满负荷工作",
+  "lectureNo": 5,
+  "lectureTitle": "二维费用的背包问题",
+  "difficulty": "普及+",
+  "tags": [
+    "二维费用背包",
+    "恰好装满"
+  ],
+  "timeLimitMs": 1000,
+  "memoryLimitMb": 256,
+  "statementFile": "statement.md",
+  "samples": [
+    {
+      "input": "10 8 3\n3 2 5\n4 3 7\n6 5 10\n",
+      "output": "17\n",
+      "note": "第 2 项（4,3,7）+ 第 3 项（6,5,10）：恰好 10 小时 8 精力，报酬 7+10=17。"
+    }
+  ]
+}

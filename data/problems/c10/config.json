@@ -1,0 +1,23 @@
+{
+  "slug": "c10",
+  "displayId": "C10",
+  "title": "自由搭配",
+  "lectureNo": 7,
+  "lectureTitle": "有依赖的背包问题",
+  "difficulty": "提高",
+  "tags": [
+    "依赖背包",
+    "物品组",
+    "附件01背包"
+  ],
+  "timeLimitMs": 1000,
+  "memoryLimitMb": 256,
+  "statementFile": "statement.md",
+  "samples": [
+    {
+      "input": "1000 5\n800 2 0\n400 5 1\n300 5 1\n400 3 0\n500 2 0\n",
+      "output": "2200\n",
+      "note": "主件 2（400×3=1200）+ 主件 3（500×2=1000）= 900 元，价值 2200。"
+    }
+  ]
+}

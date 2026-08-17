@@ -1,0 +1,22 @@
+{
+  "slug": "c7",
+  "displayId": "C7",
+  "title": "恰好赏花",
+  "lectureNo": 4,
+  "lectureTitle": "混合三种背包问题",
+  "difficulty": "普及+",
+  "tags": [
+    "混合背包",
+    "恰好装满"
+  ],
+  "timeLimitMs": 1000,
+  "memoryLimitMb": 256,
+  "statementFile": "statement.md",
+  "samples": [
+    {
+      "input": "10 3\n3 5 1\n4 6 2\n5 9 3 2\n",
+      "output": "18\n",
+      "note": "第 3 种观赏 2 次恰好 10 分钟，价值 18。"
+    }
+  ]
+}

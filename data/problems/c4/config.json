@@ -1,0 +1,23 @@
+{
+  "slug": "c4",
+  "displayId": "C4",
+  "title": "零钱最少张",
+  "lectureNo": 2,
+  "lectureTitle": "完全背包问题",
+  "difficulty": "普及",
+  "tags": [
+    "完全背包",
+    "恰好装满",
+    "最少件数"
+  ],
+  "timeLimitMs": 1000,
+  "memoryLimitMb": 256,
+  "statementFile": "statement.md",
+  "samples": [
+    {
+      "input": "12 3\n5\n3\n7\n",
+      "output": "2\n",
+      "note": "5+7=12，共 2 张。"
+    }
+  ]
+}

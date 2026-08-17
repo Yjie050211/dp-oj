@@ -1,0 +1,22 @@
+{
+  "slug": "c13",
+  "displayId": "C13",
+  "title": "价值达标",
+  "lectureNo": 4,
+  "lectureTitle": "混合三种背包问题",
+  "difficulty": "普及+",
+  "tags": [
+    "混合背包",
+    "价值维度"
+  ],
+  "timeLimitMs": 1000,
+  "memoryLimitMb": 256,
+  "statementFile": "statement.md",
+  "samples": [
+    {
+      "input": "10 3\n3 4 1\n5 6 2\n2 3 3 2\n",
+      "output": "7\n",
+      "note": "两个价值 3（花费 4）+ 价值 4（花费 3）= 价值 10，花费 7。"
+    }
+  ]
+}

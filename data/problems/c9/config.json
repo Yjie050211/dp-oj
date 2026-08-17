@@ -1,0 +1,22 @@
+{
+  "slug": "c9",
+  "displayId": "C9",
+  "title": "恰好分组",
+  "lectureNo": 6,
+  "lectureTitle": "分组的背包问题",
+  "difficulty": "普及+",
+  "tags": [
+    "分组背包",
+    "恰好装满"
+  ],
+  "timeLimitMs": 1000,
+  "memoryLimitMb": 256,
+  "statementFile": "statement.md",
+  "samples": [
+    {
+      "input": "10 6 3\n2 5 1\n3 6 1\n4 7 2\n5 8 2\n1 2 3\n6 9 3\n",
+      "output": "16\n",
+      "note": "第 2 组选（4,7）+ 第 3 组选（6,9）= 恰好 10，价值 7+9=16；第 1 组不选。"
+    }
+  ]
+}

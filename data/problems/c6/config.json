@@ -1,0 +1,23 @@
+{
+  "slug": "c6",
+  "displayId": "C6",
+  "title": "装得下吗",
+  "lectureNo": 3,
+  "lectureTitle": "多重背包问题",
+  "difficulty": "提高",
+  "tags": [
+    "多重背包",
+    "可行性",
+    "bitset"
+  ],
+  "timeLimitMs": 1000,
+  "memoryLimitMb": 256,
+  "statementFile": "statement.md",
+  "samples": [
+    {
+      "input": "10 3\n2 4\n3 3\n5 2\n",
+      "output": "1\n",
+      "note": "2+2+3+3=10 或 5+5=10，可以恰好装满。"
+    }
+  ]
+}

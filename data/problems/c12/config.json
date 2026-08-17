@@ -1,0 +1,22 @@
+{
+  "slug": "c12",
+  "displayId": "C12",
+  "title": "矿石的摆法",
+  "lectureNo": 9,
+  "lectureTitle": "背包问题问法的变化",
+  "difficulty": "提高",
+  "tags": [
+    "多重背包",
+    "方案计数"
+  ],
+  "timeLimitMs": 1000,
+  "memoryLimitMb": 256,
+  "statementFile": "statement.md",
+  "samples": [
+    {
+      "input": "4 2\n2 2\n1 3\n",
+      "output": "2\n",
+      "note": "2+2（取 2 个 2 型）与 2+1+1（1 个 2 型 + 2 个 1 型），共 2 种。"
+    }
+  ]
+}

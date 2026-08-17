@@ -1,0 +1,23 @@
+{
+  "slug": "c2",
+  "displayId": "C2",
+  "title": "预算最小化",
+  "lectureNo": 1,
+  "lectureTitle": "01 背包问题",
+  "difficulty": "提高",
+  "tags": [
+    "01背包",
+    "价值维度",
+    "最小费用"
+  ],
+  "timeLimitMs": 1000,
+  "memoryLimitMb": 256,
+  "statementFile": "statement.md",
+  "samples": [
+    {
+      "input": "10 3\n3 4\n5 6\n4 5\n",
+      "output": "8\n",
+      "note": "达到价值 ≥10 的最小费用：物品 1+2（4+6=10，费用 8）。"
+    }
+  ]
+}
