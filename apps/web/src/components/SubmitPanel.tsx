@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import CodeEditor from "./CodeEditor";
 import SubmissionResultView from "./SubmissionResultView";
+import { useTheme } from "../theme";
 import { type SubmissionDetail } from "../types";
 
 interface LangInfo {
@@ -75,6 +76,7 @@ function storageKey(slug: string, lang: string): string {
 }
 
 export default function SubmitPanel({ problemSlug, samples }: { problemSlug: string; samples: Sample[] }) {
+  const { isDark } = useTheme();
   const [languages, setLanguages] = useState<LangInfo[]>([]);
   const [langId, setLangId] = useState("cpp");
   const [code, setCode] = useState("");
@@ -243,7 +245,7 @@ export default function SubmitPanel({ problemSlug, samples }: { problemSlug: str
         </button>
       </div>
 
-      <CodeEditor language={langId} value={code} onChange={onCodeChange} />
+      <CodeEditor language={langId} value={code} onChange={onCodeChange} isDark={isDark} />
 
       {error && <div className="banner error">{error}</div>}
 

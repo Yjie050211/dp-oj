@@ -8,10 +8,12 @@ interface Props {
   language: string;
   value: string;
   onChange: (v: string) => void;
+  /** 是否暗色（决定 Monaco 内置主题 vs-dark / light） */
+  isDark?: boolean;
 }
 
-/** Monaco 编辑器封装：主题 vs-dark，自动布局，语言随 props 切换 */
-export default function CodeEditor({ language, value, onChange }: Props) {
+/** Monaco 编辑器封装：主题随平台主题切换，自动布局，语言随 props 切换 */
+export default function CodeEditor({ language, value, onChange, isDark = true }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const onChangeRef = useRef(onChange);
@@ -23,7 +25,7 @@ export default function CodeEditor({ language, value, onChange }: Props) {
     const editor = monaco.editor.create(hostRef.current, {
       value,
       language,
-      theme: "vs-dark",
+      theme: isDark ? "vs-dark" : "light",
       automaticLayout: true,
       minimap: { enabled: false },
       fontSize: 13.5,
@@ -48,6 +50,11 @@ export default function CodeEditor({ language, value, onChange }: Props) {
     const model = editorRef.current?.getModel();
     if (model) monaco.editor.setModelLanguage(model, language);
   }, [language]);
+
+  // 亮暗主题切换
+  useEffect(() => {
+    monaco.editor.setTheme(isDark ? "vs-dark" : "light");
+  }, [isDark]);
 
   // 外部值变化（加载草稿/模板）时同步，避免循环触发
   useEffect(() => {
