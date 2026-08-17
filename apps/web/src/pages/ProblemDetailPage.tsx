@@ -1,15 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
+import HintPanel from "../components/HintPanel";
 import Markdown from "../components/Markdown";
 import ProblemTimer from "../components/ProblemTimer";
 import SubmitPanel from "../components/SubmitPanel";
 import { useAutoStart } from "../hooks/useTimer";
+import { getAllProgress, subscribeProgress } from "../store/progress";
 import { difficultyClass, type ProblemDetail } from "../types";
 
 const ALL_LANGS = ["cpp", "python", "go", "java"];
 
 export default function ProblemDetailPage() {
   const { slug } = useParams<{ slug: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [problem, setProblem] = useState<ProblemDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [autoStart] = useAutoStart();
@@ -18,6 +21,41 @@ export default function ProblemDetailPage() {
   const [resetKey, setResetKey] = useState(0);
   const [confirming, setConfirming] = useState(false);
   const confirmTimerRef = useRef<number | null>(null);
+
+  // 学习进度订阅：AC 状态驱动提示锁定
+  const [solved, setSolved] = useState<boolean>(() => {
+    const p = getAllProgress().find((x) => x.slug === slug);
+    return (p?.acCount ?? 0) > 0;
+  });
+  useEffect(() => {
+    const refresh = () => {
+      const p = getAllProgress().find((x) => x.slug === slug);
+      setSolved((p?.acCount ?? 0) > 0);
+    };
+    refresh();
+    return subscribeProgress(refresh);
+  }, [slug]);
+
+  // 复习模式（/problems/:slug?review=1）：进入时清空草稿与计时，干净重做
+  useEffect(() => {
+    if (searchParams.get("review") !== "1" || !slug) return;
+    for (const lang of ALL_LANGS) {
+      try {
+        localStorage.removeItem("dp-oj-code-" + slug + "-" + lang);
+      } catch {
+        // 忽略
+      }
+    }
+    try {
+      localStorage.removeItem("dp-oj-timer-" + slug);
+    } catch {
+      // 忽略
+    }
+    setResetKey((k) => k + 1);
+    // 消费掉 query 参数，刷新/前进后退不会反复触发
+    setSearchParams({}, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug, searchParams]);
 
   useEffect(() => {
     let alive = true;
@@ -105,6 +143,8 @@ export default function ProblemDetailPage() {
           <section className="card">
             <Markdown>{problem.statement}</Markdown>
           </section>
+
+          <HintPanel slug={problem.slug} solved={solved} />
 
           <section className="card">
             <h2>样例</h2>

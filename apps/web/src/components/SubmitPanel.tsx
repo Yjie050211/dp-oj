@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import CodeEditor from "./CodeEditor";
+import ReviewSelfRating from "./ReviewSelfRating";
 import SubmissionResultView from "./SubmissionResultView";
+import { recordVerdict, type ProblemProgress } from "../store/progress";
 import { useTheme } from "../theme";
 import { type SubmissionDetail } from "../types";
 
@@ -98,6 +100,8 @@ export default function SubmitPanel({
   const [runResult, setRunResult] = useState<RunResultData | null>(null);
   const [customOpen, setCustomOpen] = useState(false);
   const [customStdin, setCustomStdin] = useState("");
+  /** 判题完成后的进度快照：用于展示复习自评 */
+  const [progressAfter, setProgressAfter] = useState<ProblemProgress | null>(null);
 
   const timerRef = useRef<number | null>(null);
 
@@ -236,6 +240,10 @@ export default function SubmitPanel({
         if (data.status === "FINISHED") {
           if (timerRef.current !== null) window.clearInterval(timerRef.current);
           setSubmitting(false);
+          // 学习进度挂钩：AC 入复习计划 / 非 AC 进错题本
+          const verdict = data.verdict ?? "SE";
+          const after = recordVerdict(problemSlug, verdict);
+          setProgressAfter(after);
         }
       } catch {
         // 轮询失败下个周期重试
@@ -348,6 +356,13 @@ export default function SubmitPanel({
       {submission && !verdict && <div className="banner">提交 #{submission.id} 排队判题中…</div>}
 
       {verdict && result && <SubmissionResultView verdict={verdict} result={result} />}
+
+      {verdict === "AC" &&
+        progressAfter &&
+        progressAfter.acCount > 1 &&
+        (progressAfter.state === "reviewing" || progressAfter.state === "mastered") && (
+          <ReviewSelfRating slug={problemSlug} />
+        )}
     </section>
   );
 }

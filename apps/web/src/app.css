@@ -377,3 +377,57 @@ a { color: var(--accent); text-decoration: none; }
 .sub-lang { color: var(--muted); min-width: 70px; }
 .sub-time { color: var(--muted2); font-size: 12px; }
 .sub-detail { border-top: 1px solid var(--border); padding: 14px 16px; background: var(--panel2); transition: background-color var(--transition); }
+/* ============================================================
+   学习功能：分层提示 / 复习自评 / 错题本 / 进度徽章
+   ============================================================ */
+
+/* ---------- 分层提示面板 ---------- */
+.hint-panel { border-left: 3px solid var(--accent); }
+.hint-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+.hint-head h2 { margin: 0; }
+.hint-sub { font-size: 12.5px; color: var(--muted2); }
+.hint-list { display: flex; flex-direction: column; gap: 8px; }
+.hint-level { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--panel2); transition: background-color var(--transition); }
+.hint-level.open { border-color: var(--border-strong); }
+.hint-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: none; border: none; color: var(--text); cursor: pointer; font-size: 13.5px; text-align: left; }
+.hint-toggle:hover { background: var(--bg-soft); }
+.hint-toggle-label { font-weight: 600; }
+.hint-arrow { color: var(--muted); }
+.hint-body { padding: 4px 14px 12px; font-size: 13.5px; line-height: 1.7; color: var(--text); border-top: 1px dashed var(--border); padding-top: 10px; }
+
+/* ---------- 复习自评 ---------- */
+.self-rating { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; padding: 10px 14px; border: 1px dashed var(--border-strong); border-radius: 10px; background: var(--panel2); }
+.rating-label { font-size: 13px; color: var(--muted); }
+.rating-btn { font-size: 13px; }
+.rating-done { color: var(--v-ac-fg); font-size: 13.5px; font-weight: 600; }
+
+/* ---------- 复习计划页 ---------- */
+.stat-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0 18px; }
+.stat-cell { border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); padding: 14px 16px; text-align: center; transition: background-color var(--transition); }
+.stat-cell.accent { border-color: var(--accent); background: var(--chip-bg); }
+.stat-num { font-size: 26px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.stat-cell.accent .stat-num { color: var(--accent); }
+.stat-label { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+.review-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 4px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.review-row:last-child { border-bottom: none; }
+.review-row-main { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-width: 0; }
+.review-title { font-weight: 700; color: var(--accent); text-decoration: none; font-size: 14.5px; }
+.review-title:hover { text-decoration: underline; }
+.review-state { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--chip-bg); color: var(--muted); }
+.review-state.st-attempted { background: var(--v-wa-bg); color: var(--v-wa-fg); }
+.review-state.st-mastered { background: var(--v-ac-bg); color: var(--v-ac-fg); }
+.review-due { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--v-tle-bg); color: var(--v-tle-fg); font-weight: 600; }
+.review-next { font-size: 12.5px; color: var(--muted); }
+.review-meta { font-size: 12.5px; color: var(--muted2); }
+.review-row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn.small { padding: 5px 12px; font-size: 12.5px; }
+
+/* ---------- 列表页：进度徽章与复习聚合条 ---------- */
+.due-banner { display: block; margin: 14px 0 0; padding: 12px 16px; border-radius: var(--radius); border: 1px solid var(--v-tle-fg); background: var(--v-tle-bg); color: var(--v-tle-fg); font-weight: 600; text-decoration: none; font-size: 14px; transition: background-color var(--transition); }
+.due-banner:hover { background: var(--panel2); }
+.prob-badge { display: inline-block; margin-left: 10px; font-size: 11.5px; font-weight: 600; padding: 1px 8px; border-radius: 999px; vertical-align: 2px; }
+.prob-badge.badge-due { background: var(--v-tle-bg); color: var(--v-tle-fg); }
+.prob-badge.badge-reviewing { background: var(--chip-bg); color: var(--chip-fg); }
+.prob-badge.badge-mastered { background: var(--v-ac-bg); color: var(--v-ac-fg); }
+.prob-badge.badge-attempted { background: var(--v-wa-bg); color: var(--v-wa-fg); }
+
