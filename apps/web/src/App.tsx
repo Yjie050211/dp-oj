@@ -8,6 +8,7 @@ import ProblemDetailPage from "./pages/ProblemDetailPage";
 import ReviewPage from "./pages/ReviewPage";
 import SubmissionsPage from "./pages/SubmissionsPage";
 import SystemStatusPage from "./pages/SystemStatusPage";
+import VisualizerPage from "./pages/VisualizerPage";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
             <Link to="/review">复习计划</Link>
             <Link to="/cards">知识卡片</Link>
             <Link to="/dashboard">进度统计</Link>
+            <Link to="/visualizer">填表演示</Link>
             <Link to="/submissions">提交记录</Link>
             <Link to="/system">系统状态</Link>
           </div>
@@ -36,6 +38,7 @@ export default function App() {
           <Route path="/review" element={<ReviewPage />} />
           <Route path="/cards" element={<CardsPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/visualizer" element={<VisualizerPage />} />
           <Route path="/submissions" element={<SubmissionsPage />} />
           <Route path="/system" element={<SystemStatusPage />} />
           <Route
